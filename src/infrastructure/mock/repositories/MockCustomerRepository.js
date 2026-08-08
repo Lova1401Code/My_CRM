@@ -14,6 +14,11 @@ export class MockCustomerRepository {
     return Result.ok(found ? createCustomer(found) : null);
   }
 
+  async findAll() {
+    await delay();
+    return Result.ok(db.customers.map(createCustomer));
+  }
+
   async findMany({ page = 1, limit = 10, search = '', filters = {} } = {}) {
     await delay();
     let items = [...db.customers];

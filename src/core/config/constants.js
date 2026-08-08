@@ -2,7 +2,7 @@
 export const APP = Object.freeze({
   NAME: 'CRM',
   VERSION: '1.0.0',
-  STORAGE_KEY: 'crm.mock.db.v1',
+  STORAGE_KEY: 'crm.mock.db.v2',
   TOKEN_KEY: 'crm.token',
   USER_KEY: 'crm.user',
   SIMULATED_LATENCY_MS: 250,

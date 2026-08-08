@@ -2,21 +2,28 @@ import { useEffect, useState } from 'react';
 import { useDashboard } from '../../adapters/hooks/useDashboard.js';
 import { StatCard } from '../components/ui/StatCard.jsx';
 import { Spinner } from '../components/ui/Feedback.jsx';
+import { ChartCard } from '../components/charts/ChartCard.jsx';
+import { EvolutionChart } from '../components/charts/EvolutionChart.jsx';
+import { LeadsStatusChart } from '../components/charts/LeadsStatusChart.jsx';
+import { LeadsSourceChart } from '../components/charts/LeadsSourceChart.jsx';
 import { errorMessage } from '../../shared/utils/errors.js';
 import { useToast } from '../context/ToastContext.jsx';
 
 export function DashboardPage() {
-  const { getStats, loading } = useDashboard();
+  const { getStats, getEvolution, loading } = useDashboard();
   const toast = useToast();
   const [stats, setStats] = useState(null);
+  const [evolution, setEvolution] = useState(null);
 
   useEffect(() => {
     let active = true;
     (async () => {
-      const result = await getStats();
+      const [statsResult, evolutionResult] = await Promise.all([getStats(), getEvolution()]);
       if (!active) return;
-      if (result.isSuccess) setStats(result.value);
-      else toast.error(errorMessage(result));
+      if (statsResult.isSuccess) setStats(statsResult.value);
+      else toast.error(errorMessage(statsResult));
+      if (evolutionResult.isSuccess) setEvolution(evolutionResult.value);
+      else toast.error(errorMessage(evolutionResult));
     })();
     return () => {
       active = false;
@@ -38,6 +45,24 @@ export function DashboardPage() {
         <StatCard type="leads" label="Prospects" value={stats?.leadsCount ?? 0} />
         <StatCard type="users" label="Utilisateurs" value={stats?.usersCount ?? 0} />
         <StatCard type="converted" label="Prospects convertis" value={stats?.convertedLeadsCount ?? 0} />
+      </div>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <ChartCard
+            title="Évolution mensuelle"
+            subtitle="Prospects et clients créés par mois (12 derniers mois)"
+          >
+            <EvolutionChart data={evolution?.evolution ?? []} />
+          </ChartCard>
+        </div>
+        <ChartCard title="Prospects par statut" subtitle="Répartition de votre pipeline">
+          <LeadsStatusChart data={evolution?.leadsByStatus ?? []} />
+        </ChartCard>
+      </div>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <ChartCard title="Prospects par source" subtitle="D'où viennent vos prospects">
+          <LeadsSourceChart data={evolution?.leadsBySource ?? []} />
+        </ChartCard>
       </div>
     </div>
   );

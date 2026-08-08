@@ -6,8 +6,8 @@ import { LeadStatus } from '../../../core/domain/enums/LeadStatus.js';
 
 export function buildSeed() {
   const now = new Date();
-  const iso = (offsetDays) =>
-    new Date(now.getTime() - offsetDays * 86400000).toISOString();
+  const iso = (offsetDays, jitterDays = 0) =>
+    new Date(now.getTime() - (offsetDays + Math.random() * jitterDays) * 86400000).toISOString();
 
   const users = [
     {
@@ -94,8 +94,8 @@ export function buildSeed() {
       city: cities[i % cities.length],
       country: 'France',
       ownerId: owner,
-      createdAt: iso(i + 1),
-      updatedAt: iso(i + 1),
+      createdAt: iso(i * 9, 5),
+      updatedAt: iso(i * 9, 5),
     });
   }
 
@@ -116,8 +116,8 @@ export function buildSeed() {
       source: sources[i % sources.length],
       status,
       ownerId: owner,
-      createdAt: iso(i + 2),
-      updatedAt: iso(i + 2),
+      createdAt: iso(i * 7, 4),
+      updatedAt: iso(i * 7, 4),
     });
   }
 

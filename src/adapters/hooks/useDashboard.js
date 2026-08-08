@@ -1,18 +1,26 @@
 import { useCallback, useState } from 'react';
-import { GetDashboardStatsUseCase } from '../../application/dashboard/DashboardUseCases.js';
+import {
+  GetDashboardStatsUseCase,
+  GetDashboardEvolutionUseCase,
+} from '../../application/dashboard/DashboardUseCases.js';
 
 export function useDashboard() {
   const [loading, setLoading] = useState(false);
 
-  const getStats = useCallback(async () => {
+  const run = useCallback(async (useCase) => {
     setLoading(true);
     try {
-      const useCase = new GetDashboardStatsUseCase();
       return await useCase.execute();
     } finally {
       setLoading(false);
     }
   }, []);
 
-  return { loading, getStats };
+  const getStats = useCallback(() => run(new GetDashboardStatsUseCase()), [run]);
+  const getEvolution = useCallback(
+    () => run(new GetDashboardEvolutionUseCase()),
+    [run],
+  );
+
+  return { loading, getStats, getEvolution };
 }

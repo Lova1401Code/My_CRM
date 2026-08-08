@@ -7,3 +7,10 @@ export class GetDashboardStatsUseCase extends UseCase {
     return service.getStats();
   }
 }
+
+export class GetDashboardEvolutionUseCase extends UseCase {
+  async execute() {
+    const service = useService(TOKENS.DashboardService);
+    return service.getEvolution();
+  }
+}

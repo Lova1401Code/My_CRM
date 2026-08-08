@@ -15,6 +15,11 @@ export class MockLeadRepository {
     return Result.ok(found ? createLead(found) : null);
   }
 
+  async findAll() {
+    await delay();
+    return Result.ok(db.leads.map(createLead));
+  }
+
   async findMany({ page = 1, limit = 10, search = '', filters = {} } = {}) {
     await delay();
     let items = [...db.leads];
