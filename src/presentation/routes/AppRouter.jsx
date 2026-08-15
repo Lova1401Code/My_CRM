@@ -9,6 +9,8 @@ import { CustomersListPage } from '../pages/CustomersListPage.jsx';
 import { CustomerFormPage } from '../pages/CustomerFormPage.jsx';
 import { LeadsListPage } from '../pages/LeadsListPage.jsx';
 import { LeadFormPage } from '../pages/LeadFormPage.jsx';
+import { DealsListPage } from '../pages/DealsListPage.jsx';
+import { DealFormPage } from '../pages/DealFormPage.jsx';
 import { UsersListPage } from '../pages/UsersListPage.jsx';
 import { UserFormPage } from '../pages/UserFormPage.jsx';
 import { ProfilePage } from '../pages/ProfilePage.jsx';
@@ -32,6 +34,9 @@ export function AppRouter() {
         <Route path="/leads" element={<LeadsListPage />} />
         <Route path="/leads/new" element={<LeadFormPage />} />
         <Route path="/leads/:id/edit" element={<LeadFormPage />} />
+        <Route path="/deals" element={<DealsListPage />} />
+        <Route path="/deals/new" element={<DealFormPage />} />
+        <Route path="/deals/:id/edit" element={<DealFormPage />} />
         <Route
           path="/users"
           element={

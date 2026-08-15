@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, UserCheck, UserCog, X } from 'lucide-react';
+import { LayoutDashboard, Users, UserCheck, UserCog, Handshake, X } from 'lucide-react';
 import { APP } from '../../../core/config/constants.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 
@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { to: '/', label: 'Tableau de bord', icon: LayoutDashboard, end: true },
   { to: '/customers', label: 'Clients', icon: Users },
   { to: '/leads', label: 'Prospects', icon: UserCheck },
+  { to: '/deals', label: 'Pipeline de ventes', icon: Handshake },
   { to: '/users', label: 'Utilisateurs', icon: UserCog, adminOnly: true },
 ];
 

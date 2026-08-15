@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import {
   GetDashboardStatsUseCase,
   GetDashboardEvolutionUseCase,
+  GetDashboardPipelineUseCase,
 } from '../../application/dashboard/DashboardUseCases.js';
 
 export function useDashboard() {
@@ -21,6 +22,10 @@ export function useDashboard() {
     () => run(new GetDashboardEvolutionUseCase()),
     [run],
   );
+  const getPipeline = useCallback(
+    () => run(new GetDashboardPipelineUseCase()),
+    [run],
+  );
 
-  return { loading, getStats, getEvolution };
+  return { loading, getStats, getEvolution, getPipeline };
 }

@@ -6,6 +6,7 @@
 import { MockUserRepository } from '../mock/repositories/MockUserRepository.js';
 import { MockCustomerRepository } from '../mock/repositories/MockCustomerRepository.js';
 import { MockLeadRepository } from '../mock/repositories/MockLeadRepository.js';
+import { MockDealRepository } from '../mock/repositories/MockDealRepository.js';
 import { MockAuthService } from '../mock/services/MockAuthService.js';
 import { MockDashboardService } from '../mock/services/MockDashboardService.js';
 import { JwtTokenService } from '../mock/services/JwtTokenService.js';
@@ -13,6 +14,7 @@ import { MockPasswordHasher } from '../mock/services/MockPasswordHasher.js';
 import { ZodUserValidator } from '../mock/validators/ZodUserValidator.js';
 import { ZodCustomerValidator } from '../mock/validators/ZodCustomerValidator.js';
 import { ZodLeadValidator } from '../mock/validators/ZodLeadValidator.js';
+import { ZodDealValidator } from '../mock/validators/ZodDealValidator.js';
 
 class Container {
   constructor() {
@@ -35,6 +37,7 @@ export const TOKENS = {
   UserRepository: 'UserRepository',
   CustomerRepository: 'CustomerRepository',
   LeadRepository: 'LeadRepository',
+  DealRepository: 'DealRepository',
   AuthService: 'AuthService',
   DashboardService: 'DashboardService',
   TokenService: 'TokenService',
@@ -42,6 +45,7 @@ export const TOKENS = {
   UserValidator: 'UserValidator',
   CustomerValidator: 'CustomerValidator',
   LeadValidator: 'LeadValidator',
+  DealValidator: 'DealValidator',
 };
 
 // --- Wire the container (mock layer) ---
@@ -50,12 +54,14 @@ const container = new Container();
 const userRepository = new MockUserRepository();
 const customerRepository = new MockCustomerRepository();
 const leadRepository = new MockLeadRepository();
+const dealRepository = new MockDealRepository();
 const tokenService = new JwtTokenService();
 const passwordHasher = new MockPasswordHasher();
 
 container.register(TOKENS.UserRepository, userRepository);
 container.register(TOKENS.CustomerRepository, customerRepository);
 container.register(TOKENS.LeadRepository, leadRepository);
+container.register(TOKENS.DealRepository, dealRepository);
 container.register(TOKENS.TokenService, tokenService);
 container.register(TOKENS.PasswordHasher, passwordHasher);
 container.register(
@@ -64,11 +70,12 @@ container.register(
 );
 container.register(
   TOKENS.DashboardService,
-  new MockDashboardService({ userRepository, customerRepository, leadRepository }),
+  new MockDashboardService({ userRepository, customerRepository, leadRepository, dealRepository }),
 );
 container.register(TOKENS.UserValidator, new ZodUserValidator());
 container.register(TOKENS.CustomerValidator, new ZodCustomerValidator());
 container.register(TOKENS.LeadValidator, new ZodLeadValidator());
+container.register(TOKENS.DealValidator, new ZodDealValidator());
 
 export function useService(token) {
   return container.resolve(token);

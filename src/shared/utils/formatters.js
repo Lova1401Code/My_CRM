@@ -30,6 +30,15 @@ export function formatPhone(value) {
   return digits.replace(/(\d{2})(?=\d)/g, '$1 ').trim();
 }
 
+export function formatCurrency(value) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) return '-';
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR',
+    maximumFractionDigits: 0,
+  }).format(Number(value));
+}
+
 export function initials(firstname = '', lastname = '') {
   return `${firstname.charAt(0)}${lastname.charAt(0)}`.toUpperCase();
 }

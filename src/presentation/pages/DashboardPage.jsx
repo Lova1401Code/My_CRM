@@ -6,24 +6,33 @@ import { ChartCard } from '../components/charts/ChartCard.jsx';
 import { EvolutionChart } from '../components/charts/EvolutionChart.jsx';
 import { LeadsStatusChart } from '../components/charts/LeadsStatusChart.jsx';
 import { LeadsSourceChart } from '../components/charts/LeadsSourceChart.jsx';
+import { DealsPipelineChart } from '../components/charts/DealsPipelineChart.jsx';
 import { errorMessage } from '../../shared/utils/errors.js';
+import { formatCurrency } from '../../shared/utils/formatters.js';
 import { useToast } from '../context/ToastContext.jsx';
 
 export function DashboardPage() {
-  const { getStats, getEvolution, loading } = useDashboard();
+  const { getStats, getEvolution, getPipeline, loading } = useDashboard();
   const toast = useToast();
   const [stats, setStats] = useState(null);
   const [evolution, setEvolution] = useState(null);
+  const [pipeline, setPipeline] = useState(null);
 
   useEffect(() => {
     let active = true;
     (async () => {
-      const [statsResult, evolutionResult] = await Promise.all([getStats(), getEvolution()]);
+      const [statsResult, evolutionResult, pipelineResult] = await Promise.all([
+        getStats(),
+        getEvolution(),
+        getPipeline(),
+      ]);
       if (!active) return;
       if (statsResult.isSuccess) setStats(statsResult.value);
       else toast.error(errorMessage(statsResult));
       if (evolutionResult.isSuccess) setEvolution(evolutionResult.value);
       else toast.error(errorMessage(evolutionResult));
+      if (pipelineResult.isSuccess) setPipeline(pipelineResult.value);
+      else toast.error(errorMessage(pipelineResult));
     })();
     return () => {
       active = false;
@@ -59,6 +68,24 @@ export function DashboardPage() {
           <LeadsStatusChart data={evolution?.leadsByStatus ?? []} />
         </ChartCard>
       </div>
+
+      <div>
+        <h2 className="text-lg font-semibold text-slate-900">Pipeline de ventes</h2>
+        <p className="mt-1 text-sm text-slate-500">Revenus et opportunités commerciales</p>
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <StatCard type="revenue" label="CA gagné" value={formatCurrency(pipeline?.wonRevenue ?? 0)} />
+        <StatCard type="forecast" label="Prévision pondérée" value={formatCurrency(pipeline?.forecast ?? 0)} />
+        <StatCard type="deals" label="Deals ouverts" value={pipeline?.openDeals ?? 0} />
+      </div>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <ChartCard title="Affaires par étape" subtitle="Nombre d'opportunités dans le pipeline">
+            <DealsPipelineChart data={pipeline?.dealsByStage ?? []} />
+          </ChartCard>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <ChartCard title="Prospects par source" subtitle="D'où viennent vos prospects">
           <LeadsSourceChart data={evolution?.leadsBySource ?? []} />

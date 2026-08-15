@@ -1,11 +1,14 @@
 // Stat card for the dashboard.
-import { Users, UserCheck, Briefcase, TrendingUp } from 'lucide-react';
+import { Users, UserCheck, Briefcase, TrendingUp, Banknote, Target, Handshake } from 'lucide-react';
 
 const ICONS = {
   customers: Users,
   leads: UserCheck,
   users: Briefcase,
   converted: TrendingUp,
+  revenue: Banknote,
+  forecast: Target,
+  deals: Handshake,
 };
 
 const COLORS = {
@@ -13,6 +16,9 @@ const COLORS = {
   leads: 'bg-blue-50 text-blue-600',
   users: 'bg-purple-50 text-purple-600',
   converted: 'bg-emerald-50 text-emerald-600',
+  revenue: 'bg-emerald-50 text-emerald-600',
+  forecast: 'bg-amber-50 text-amber-600',
+  deals: 'bg-indigo-50 text-indigo-600',
 };
 
 export function StatCard({ type, label, value }) {

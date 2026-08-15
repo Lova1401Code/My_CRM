@@ -3,6 +3,7 @@
 import { Role } from '../../../core/domain/enums/Role.js';
 import { UserStatus } from '../../../core/domain/enums/UserStatus.js';
 import { LeadStatus } from '../../../core/domain/enums/LeadStatus.js';
+import { DealStage } from '../../../core/domain/enums/DealStage.js';
 
 export function buildSeed() {
   const now = new Date();
@@ -121,5 +122,31 @@ export function buildSeed() {
     });
   }
 
-  return { users, customers, leads };
+  const deals = [];
+  const dealStages = [
+    DealStage.PROSPECT,
+    DealStage.QUALIFIED,
+    DealStage.PROPOSAL,
+    DealStage.NEGOTIATION,
+    DealStage.WON,
+    DealStage.LOST,
+  ];
+  for (let i = 0; i < 15; i += 1) {
+    const stage = dealStages[i % dealStages.length];
+    const customer = customers[i % customers.length];
+    deals.push({
+      id: `d-${i + 1}`,
+      title: `Contrat ${customer.company}`,
+      customerId: customer.id,
+      amount: ((i % 5) + 1) * 2500 + 1000,
+      stage,
+      expectedCloseDate: iso(i * 5, 8).slice(0, 10),
+      notes: '',
+      ownerId: customer.ownerId,
+      createdAt: iso(i * 11, 3),
+      updatedAt: iso(i * 11, 3),
+    });
+  }
+
+  return { users, customers, leads, deals };
 }

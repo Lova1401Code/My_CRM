@@ -40,6 +40,10 @@ class MockDatabase {
     return this.data.leads;
   }
 
+  get deals() {
+    return this.data.deals;
+  }
+
   save() {
     persist(this.data);
   }

@@ -14,3 +14,10 @@ export class GetDashboardEvolutionUseCase extends UseCase {
     return service.getEvolution();
   }
 }
+
+export class GetDashboardPipelineUseCase extends UseCase {
+  async execute() {
+    const service = useService(TOKENS.DashboardService);
+    return service.getPipeline();
+  }
+}

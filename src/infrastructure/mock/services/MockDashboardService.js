@@ -2,6 +2,10 @@
 import { Result } from '../../../shared/utils/result.js';
 import { delay } from '../helpers.js';
 import { LeadStatus } from '../../../core/domain/enums/LeadStatus.js';
+import {
+  DealStage,
+  DEAL_STAGE_PROBABILITY,
+} from '../../../core/domain/enums/DealStage.js';
 
 const MONTHS_SPAN = 12;
 
@@ -35,10 +39,11 @@ function bucketize(items) {
 }
 
 export class MockDashboardService {
-  constructor({ userRepository, customerRepository, leadRepository }) {
+  constructor({ userRepository, customerRepository, leadRepository, dealRepository }) {
     this.userRepository = userRepository;
     this.customerRepository = customerRepository;
     this.leadRepository = leadRepository;
+    this.dealRepository = dealRepository;
   }
 
   async getStats() {
@@ -100,5 +105,41 @@ export class MockDashboardService {
       .sort((a, b) => b.count - a.count);
 
     return Result.ok({ evolution, leadsByStatus, leadsBySource });
+  }
+
+  async getPipeline() {
+    await delay();
+    const dealsRes = await this.dealRepository.findAll();
+    if (dealsRes.isFailure) return dealsRes;
+    const deals = dealsRes.value;
+
+    const stageMap = {};
+    for (const stage of Object.values(DealStage)) {
+      stageMap[stage] = { stage, count: 0, amount: 0 };
+    }
+
+    let wonRevenue = 0;
+    let forecast = 0;
+    for (const deal of deals) {
+      const entry = stageMap[deal.stage];
+      if (!entry) continue;
+      entry.count += 1;
+      entry.amount += deal.amount;
+      if (deal.stage === DealStage.WON) wonRevenue += deal.amount;
+      else if (deal.stage !== DealStage.LOST) {
+        forecast += (deal.amount * (DEAL_STAGE_PROBABILITY[deal.stage] || 0)) / 100;
+      }
+    }
+
+    const openDeals = deals.filter(
+      (d) => d.stage !== DealStage.WON && d.stage !== DealStage.LOST,
+    ).length;
+
+    return Result.ok({
+      wonRevenue,
+      forecast,
+      openDeals,
+      dealsByStage: Object.values(stageMap).filter((entry) => entry.count > 0),
+    });
   }
 }
