@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Pencil, Trash2, Plus, Handshake } from 'lucide-react';
+import { Pencil, Trash2, Plus, Handshake, LayoutGrid, List } from 'lucide-react';
 import { useDeals } from '../../adapters/hooks/useDeals.js';
 import { useCustomers } from '../../adapters/hooks/useCustomers.js';
 import { useUsers } from '../../adapters/hooks/useUsers.js';
@@ -14,6 +14,7 @@ import { Button } from '../components/ui/Button.jsx';
 import { StatCard } from '../components/ui/StatCard.jsx';
 import { Spinner, EmptyState } from '../components/ui/Feedback.jsx';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog.jsx';
+import { DealBoard } from '../components/entities/DealBoard.jsx';
 import { errorMessage } from '../../shared/utils/errors.js';
 import { formatDate, formatCurrency } from '../../shared/utils/formatters.js';
 import { PAGINATION } from '../../core/config/constants.js';
@@ -26,7 +27,7 @@ import {
 
 export function DealsListPage() {
   const { user, isAdmin } = useAuth();
-  const { list, remove, loading } = useDeals();
+  const { list, remove, update, loading } = useDeals();
   const { list: listCustomers } = useCustomers();
   const { list: listUsers } = useUsers();
   const toast = useToast();
@@ -34,6 +35,7 @@ export function DealsListPage() {
 
   const [data, setData] = useState({ items: [], total: 0 });
   const [all, setAll] = useState([]);
+  const [view, setView] = useState('list');
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(PAGINATION.DEFAULT_PAGE_SIZE);
   const [search, setSearch] = useState('');
@@ -73,17 +75,30 @@ export function DealsListPage() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const filters = useMemo(() => (stageFilter ? { stage: stageFilter } : {}), [stageFilter]);
+  const boardMode = view === 'board';
 
   const fetch = useCallback(async () => {
     const [result, allResult] = await Promise.all([
-      list({ actor: user, page, limit, search, filters }),
-      list({ actor: user, page: 1, limit: 10000, search, filters }),
+      list({
+        actor: user,
+        page,
+        limit,
+        search: boardMode ? '' : search,
+        filters: boardMode ? {} : filters,
+      }),
+      list({
+        actor: user,
+        page: 1,
+        limit: 10000,
+        search: boardMode ? '' : search,
+        filters: boardMode ? {} : filters,
+      }),
     ]);
     if (result.isSuccess) setData(result.value);
     else toast.error(errorMessage(result));
     if (allResult.isSuccess) setAll(allResult.value.items);
     else toast.error(errorMessage(allResult));
-  }, [user, page, limit, search, filters, list, toast]);
+  }, [user, page, limit, search, filters, boardMode, list, toast]);
 
   useEffect(() => {
     fetch();
@@ -108,6 +123,15 @@ export function DealsListPage() {
       toast.success('Affaire supprimée');
       fetch();
     } else toast.error(errorMessage(result));
+  };
+
+  const handleStageChange = async (dealId, stage) => {
+    const result = await update({ actor: user, id: dealId, data: { stage } });
+    if (result.isSuccess) {
+      fetch();
+    } else {
+      toast.error(errorMessage(result));
+    }
   };
 
   const kpis = useMemo(() => {
@@ -187,25 +211,55 @@ export function DealsListPage() {
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <SearchBar value={search} onChange={handleSearch} placeholder="Rechercher une affaire..." />
-        <select
-          value={stageFilter}
-          onChange={(e) => {
-            setStageFilter(e.target.value);
-            setPage(1);
-          }}
-          className="rounded-md border-0 bg-white px-3 py-2 text-sm ring-1 ring-slate-300 focus:ring-2 focus:ring-indigo-600"
-        >
-          <option value="">Toutes les étapes</option>
-          {Object.values(DealStage).map((s) => (
-            <option key={s} value={s}>{DEAL_STAGE_LABELS[s]}</option>
-          ))}
-        </select>
+        {boardMode ? (
+          <p className="text-sm text-slate-500">
+            Glissez-déposez une carte pour changer l'étape d'une affaire.
+          </p>
+        ) : (
+          <>
+            <SearchBar value={search} onChange={handleSearch} placeholder="Rechercher une affaire..." />
+            <select
+              value={stageFilter}
+              onChange={(e) => {
+                setStageFilter(e.target.value);
+                setPage(1);
+              }}
+              className="rounded-md border-0 bg-white px-3 py-2 text-sm ring-1 ring-slate-300 focus:ring-2 focus:ring-indigo-600"
+            >
+              <option value="">Toutes les étapes</option>
+              {Object.values(DealStage).map((s) => (
+                <option key={s} value={s}>{DEAL_STAGE_LABELS[s]}</option>
+              ))}
+            </select>
+          </>
+        )}
+        <div className="flex shrink-0 rounded-md bg-slate-100 p-1">
+          <button
+            type="button"
+            onClick={() => setView('list')}
+            className={`inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-medium transition ${
+              view === 'list' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <List className="h-4 w-4" />
+            Liste
+          </button>
+          <button
+            type="button"
+            onClick={() => setView('board')}
+            className={`inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-medium transition ${
+              view === 'board' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <LayoutGrid className="h-4 w-4" />
+            Kanban
+          </button>
+        </div>
       </div>
 
       {loading && data.items.length === 0 ? (
         <Spinner className="py-20" />
-      ) : data.items.length === 0 ? (
+      ) : all.length === 0 ? (
         <div className="rounded-lg bg-white p-8 ring-1 ring-slate-200">
           <EmptyState
             icon={<Handshake className="h-10 w-10" />}
@@ -214,6 +268,8 @@ export function DealsListPage() {
             action={<Button onClick={() => navigate('/deals/new')}><Plus className="h-4 w-4" /> Nouvelle affaire</Button>}
           />
         </div>
+      ) : boardMode ? (
+        <DealBoard deals={all} customerMap={customerMap} onStageChange={handleStageChange} />
       ) : (
         <div className="rounded-lg bg-white p-3 ring-1 ring-slate-200">
           <Table

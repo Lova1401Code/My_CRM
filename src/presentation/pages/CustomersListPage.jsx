@@ -62,7 +62,13 @@ export function CustomersListPage() {
 
   const columns = [
     { key: 'name', header: 'Nom', render: (c) => (
-      <div className="font-medium text-slate-900">{c.firstname} {c.lastname}</div>
+      <button
+        type="button"
+        onClick={() => navigate(`/customers/${c.id}`)}
+        className="text-left font-medium text-indigo-600 hover:text-indigo-800 hover:underline"
+      >
+        {c.firstname} {c.lastname}
+      </button>
     ) },
     { key: 'company', header: 'Société', render: (c) => c.company || '-' },
     { key: 'email', header: 'Email', render: (c) => c.email || '-' },

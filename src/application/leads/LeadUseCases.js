@@ -8,6 +8,9 @@ import {
 import { TOKENS, useService } from '../../infrastructure/container/ServiceContainer.js';
 import { Role } from '../../core/domain/enums/Role.js';
 import { LeadStatus } from '../../core/domain/enums/LeadStatus.js';
+import { ActivityType } from '../../core/domain/enums/ActivityType.js';
+import { RelatedEntityType } from '../../core/domain/enums/RelatedEntityType.js';
+import { logActivity } from '../activities/ActivityUseCases.js';
 
 export class ListLeadsUseCase extends UseCase {
   async execute({ actor, page, limit, search, filters } = {}) {
@@ -85,8 +88,8 @@ export class ConvertLeadToCustomerUseCase extends UseCase {
   async execute({ actor, leadId }) {
     if (!actor) return Result.fail(new UnauthorizedError('Authentification requise'));
     const leadRepo = useService(TOKENS.LeadRepository);
-    const customerRepo = useService(TOKENS.CustomerRepository);
 
+    // Check lead exists and ownership.
     const leadResult = await leadRepo.findById(leadId);
     if (leadResult.isFailure) return leadResult;
     const lead = leadResult.value;
@@ -98,7 +101,15 @@ export class ConvertLeadToCustomerUseCase extends UseCase {
       return Result.fail(new ValidationError('Ce prospect est déjà converti'));
     }
 
-    // Create customer from lead.
+    // Use backend convert endpoint if available (single HTTP call).
+    if (typeof leadRepo.convertToCustomer === 'function') {
+      const convertResult = await leadRepo.convertToCustomer(leadId);
+      if (convertResult.isFailure) return convertResult;
+      return Result.ok({ customer: convertResult.value.customer });
+    }
+
+    // Fallback: manual conversion (mock mode).
+    const customerRepo = useService(TOKENS.CustomerRepository);
     const customerResult = await customerRepo.create({
       firstname: lead.firstname,
       lastname: lead.lastname,
@@ -111,10 +122,7 @@ export class ConvertLeadToCustomerUseCase extends UseCase {
       ownerId: lead.ownerId,
     });
     if (customerResult.isFailure) return customerResult;
-
-    // Mark lead as converted.
     await leadRepo.update(leadId, { status: LeadStatus.CONVERTED });
-
     return Result.ok({ customer: customerResult.value });
   }
 }

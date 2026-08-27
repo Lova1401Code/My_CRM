@@ -76,7 +76,13 @@ export function LeadsListPage() {
 
   const columns = [
     { key: 'name', header: 'Nom', render: (l) => (
-      <div className="font-medium text-slate-900">{l.firstname} {l.lastname}</div>
+      <button
+        type="button"
+        onClick={() => navigate(`/leads/${l.id}`)}
+        className="text-left font-medium text-indigo-600 hover:text-indigo-800 hover:underline"
+      >
+        {l.firstname} {l.lastname}
+      </button>
     ) },
     { key: 'company', header: 'Société', render: (l) => l.company || '-' },
     { key: 'email', header: 'Email', render: (l) => l.email || '-' },

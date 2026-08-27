@@ -7,6 +7,10 @@ import {
 } from '../../core/domain/errors/index.js';
 import { TOKENS, useService } from '../../infrastructure/container/ServiceContainer.js';
 import { Role } from '../../core/domain/enums/Role.js';
+import { DealStage, DEAL_STAGE_LABELS } from '../../core/domain/enums/DealStage.js';
+import { ActivityType } from '../../core/domain/enums/ActivityType.js';
+import { RelatedEntityType } from '../../core/domain/enums/RelatedEntityType.js';
+import { logActivity } from '../activities/ActivityUseCases.js';
 
 async function assertCustomerAccess(actor, customerId) {
   const customerRepo = useService(TOKENS.CustomerRepository);
@@ -57,7 +61,17 @@ export class CreateDealUseCase extends UseCase {
     if (access.isFailure) return access;
 
     const ownerId = actor.role === Role.COMMERCIAL ? actor.id : data.ownerId || actor.id;
-    return repo.create({ ...validation.value, ownerId });
+    const result = await repo.create({ ...validation.value, ownerId });
+    if (result.isSuccess) {
+      await logActivity({
+        ownerId,
+        type: ActivityType.EVENT,
+        subject: `Affaire créée : ${result.value.title}`,
+        relatedType: RelatedEntityType.DEAL,
+        relatedId: result.value.id,
+      });
+    }
+    return result;
   }
 }
 
@@ -84,7 +98,35 @@ export class UpdateDealUseCase extends UseCase {
 
     const payload = { ...validation.value };
     if (actor.role === Role.COMMERCIAL) delete payload.ownerId;
-    return repo.update(id, payload);
+    const result = await repo.update(id, payload);
+    if (
+      result.isSuccess &&
+      payload.stage &&
+      payload.stage !== existing.value.stage
+    ) {
+      const from = DEAL_STAGE_LABELS[existing.value.stage] || existing.value.stage;
+      const to = DEAL_STAGE_LABELS[payload.stage] || payload.stage;
+      await logActivity({
+        ownerId: result.value.ownerId,
+        type: ActivityType.EVENT,
+        subject: `Étape mise à jour : ${from} → ${to}`,
+        description: `Affaire « ${result.value.title} »`,
+        relatedType: RelatedEntityType.DEAL,
+        relatedId: id,
+      });
+      if (payload.stage === DealStage.WON || payload.stage === DealStage.LOST) {
+        await logActivity({
+          ownerId: result.value.ownerId,
+          type: ActivityType.EVENT,
+          subject: payload.stage === DealStage.WON
+            ? `Affaire gagnée : ${result.value.title}`
+            : `Affaire perdue : ${result.value.title}`,
+          relatedType: RelatedEntityType.DEAL,
+          relatedId: id,
+        });
+      }
+    }
+    return result;
   }
 }
 

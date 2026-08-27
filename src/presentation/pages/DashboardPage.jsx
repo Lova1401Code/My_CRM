@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 import { useDashboard } from '../../adapters/hooks/useDashboard.js';
 import { StatCard } from '../components/ui/StatCard.jsx';
 import { Spinner } from '../components/ui/Feedback.jsx';
@@ -7,8 +9,10 @@ import { EvolutionChart } from '../components/charts/EvolutionChart.jsx';
 import { LeadsStatusChart } from '../components/charts/LeadsStatusChart.jsx';
 import { LeadsSourceChart } from '../components/charts/LeadsSourceChart.jsx';
 import { DealsPipelineChart } from '../components/charts/DealsPipelineChart.jsx';
+import { TaskListPanel } from '../components/entities/TaskListPanel.jsx';
 import { errorMessage } from '../../shared/utils/errors.js';
 import { formatCurrency } from '../../shared/utils/formatters.js';
+import { toDateString } from '../../shared/utils/dateHelpers.js';
 import { useToast } from '../context/ToastContext.jsx';
 
 export function DashboardPage() {
@@ -90,6 +94,21 @@ export function DashboardPage() {
         <ChartCard title="Prospects par source" subtitle="D'où viennent vos prospects">
           <LeadsSourceChart data={evolution?.leadsBySource ?? []} />
         </ChartCard>
+        <div className="space-y-2">
+          <Link
+            to="/tasks"
+            className="inline-flex items-center gap-1 text-sm font-medium text-indigo-600 transition hover:text-indigo-700"
+          >
+            Voir toutes mes tâches
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+          <TaskListPanel
+            title="Mes tâches du jour"
+            subtitle="En retard et à faire aujourd'hui"
+            filters={{ status: 'OPEN', dueTo: toDateString(new Date()) }}
+            limit={5}
+          />
+        </div>
       </div>
     </div>
   );

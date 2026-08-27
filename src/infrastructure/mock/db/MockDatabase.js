@@ -44,6 +44,18 @@ class MockDatabase {
     return this.data.deals;
   }
 
+  get activities() {
+    return this.data.activities;
+  }
+
+  get tasks() {
+    return this.data.tasks;
+  }
+
+  get notes() {
+    return this.data.notes;
+  }
+
   save() {
     persist(this.data);
   }

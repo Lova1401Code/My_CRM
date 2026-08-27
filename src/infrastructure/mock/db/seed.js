@@ -4,6 +4,9 @@ import { Role } from '../../../core/domain/enums/Role.js';
 import { UserStatus } from '../../../core/domain/enums/UserStatus.js';
 import { LeadStatus } from '../../../core/domain/enums/LeadStatus.js';
 import { DealStage } from '../../../core/domain/enums/DealStage.js';
+import { TaskStatus } from '../../../core/domain/enums/TaskStatus.js';
+import { TaskPriority } from '../../../core/domain/enums/TaskPriority.js';
+import { RelatedEntityType } from '../../../core/domain/enums/RelatedEntityType.js';
 
 export function buildSeed() {
   const now = new Date();
@@ -148,5 +151,119 @@ export function buildSeed() {
     });
   }
 
-  return { users, customers, leads, deals };
+  // --- Activities (timeline entries) ---
+  const activityTypes = ['CALL', 'EMAIL', 'MEETING'];
+  const activitySubjects = {
+    CALL: ['Appel de suivi', 'Premier contact téléphonique', 'Point hebdomadaire', 'Relance téléphonique'],
+    EMAIL: ['Envoi de la proposition', 'Relance par email', 'Confirmation de rendez-vous', 'Documentation envoyée'],
+    MEETING: ['Réunion de présentation', 'Atelier de cadrage', 'Démo produit', 'Négociation tarifaire'],
+  };
+  const activities = [];
+  let activityIndex = 0;
+  const attach = (relatedType, relatedId, ownerId) => {
+    activityIndex += 1;
+    const kind = activityTypes[activityIndex % activityTypes.length];
+    const subjects = activitySubjects[kind];
+    activities.push({
+      id: `a-${activityIndex}`,
+      type: kind,
+      subject: subjects[activityIndex % subjects.length],
+      description:
+        activityIndex % 3 === 0
+          ? 'Échange positif, à retenir dans le suivi du compte.'
+          : '',
+      relatedType,
+      relatedId,
+      ownerId,
+      occurredAt: iso(activityIndex * 2, 6),
+      createdAt: iso(activityIndex * 2, 6),
+    });
+  };
+  customers.slice(0, 8).forEach((customer, i) => {
+    attach(RelatedEntityType.CUSTOMER, customer.id, customer.ownerId);
+    if (i % 2 === 0) attach(RelatedEntityType.CUSTOMER, customer.id, customer.ownerId);
+  });
+  leads.slice(0, 8).forEach((lead, i) => {
+    attach(RelatedEntityType.LEAD, lead.id, lead.ownerId);
+    if (i % 3 === 0) attach(RelatedEntityType.LEAD, lead.id, lead.ownerId);
+  });
+  deals.slice(0, 8).forEach((deal) => {
+    attach(RelatedEntityType.DEAL, deal.id, deal.ownerId);
+  });
+  activities.sort((a, b) => new Date(b.occurredAt) - new Date(a.occurredAt));
+
+  // --- Tasks (reminders) ---
+  const taskTitles = [
+    'Rappeler le client',
+    'Envoyer la facture',
+    'Préparer la proposition commerciale',
+    'Planifier une démonstration',
+    'Faire suivre le contrat',
+    'Mettre à jour la fiche client',
+    'Relancer le prospect',
+    'Vérifier les disponibilités',
+  ];
+  const dayMs = 86400000;
+  const dueIso = (offsetDays) => new Date(now.getTime() + offsetDays * dayMs).toISOString();
+  const taskDueOffsets = [-4, -2, -1, 0, 0, 1, 2, 3, 5, 7];
+  const tasks = taskTitles.map((title, i) => {
+    const owner = i % 2 === 0 ? 'u-comm-1' : 'u-comm-2';
+    const done = i >= taskTitles.length - 3;
+    const related = i < 4
+      ? { relatedType: RelatedEntityType.CUSTOMER, relatedId: customers[i].id }
+      : i < 7
+        ? { relatedType: RelatedEntityType.LEAD, relatedId: leads[i - 4].id }
+        : { relatedType: null, relatedId: null };
+    return {
+      id: `t-${i + 1}`,
+      title,
+      description: i % 2 === 0 ? 'Pensez à préparer les éléments avant l\'échange.' : '',
+      dueDate: dueIso(taskDueOffsets[i % taskDueOffsets.length]).slice(0, 10),
+      priority: [TaskPriority.HIGH, TaskPriority.MEDIUM, TaskPriority.LOW][i % 3],
+      status: done ? TaskStatus.DONE : TaskStatus.OPEN,
+      ...related,
+      ownerId: owner,
+      completedAt: done ? iso(2, 2) : null,
+      createdAt: iso(10 + i),
+      updatedAt: done ? iso(2, 2) : iso(10 + i),
+    };
+  });
+
+  // --- Notes ---
+  const noteContents = [
+    'Client privilégié : privilégier un suivi mensuel rapproché.',
+    'Sensible au rapport qualité/prix, mettre en avant les économies réalisables.',
+    'Décideur absent lors des échanges, reprendre contact avec la direction.',
+    'A exprimé un besoin pour le trimestre prochain.',
+    'Concurrent actuel : société X. Détailler nos différenciateurs.',
+    'Préfère être contacté en fin de journée.',
+    'Budget validé par la direction financière.',
+    'À relancer après le salon professionnel de septembre.',
+  ];
+  const notes = noteContents.map((content, i) => {
+    if (i % 2 === 0) {
+      const customer = customers[i % customers.length];
+      return {
+        id: `n-${i + 1}`,
+        content,
+        relatedType: 'CUSTOMER',
+        relatedId: customer.id,
+        authorId: customer.ownerId,
+        createdAt: iso(i * 3, 3),
+        updatedAt: iso(i * 3, 3),
+      };
+    }
+    const lead = leads[i % leads.length];
+    return {
+      id: `n-${i + 1}`,
+      content,
+      relatedType: 'LEAD',
+      relatedId: lead.id,
+      authorId: lead.ownerId,
+      createdAt: iso(i * 3, 3),
+      updatedAt: iso(i * 3, 3),
+    };
+  });
+
+  return { users, customers, leads, deals, activities, tasks, notes };
 }

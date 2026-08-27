@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import {
   ListLeadsUseCase,
+  GetLeadUseCase,
   CreateLeadUseCase,
   UpdateLeadUseCase,
   DeleteLeadUseCase,
@@ -15,6 +16,16 @@ export function useLeads() {
     try {
       const useCase = new ListLeadsUseCase();
       return await useCase.execute(params || {});
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const get = useCallback(async ({ actor, id }) => {
+    setLoading(true);
+    try {
+      const useCase = new GetLeadUseCase();
+      return await useCase.execute({ actor, id });
     } finally {
       setLoading(false);
     }
@@ -60,5 +71,5 @@ export function useLeads() {
     }
   }, []);
 
-  return { loading, list, create, update, remove, convert };
+  return { loading, list, get, create, update, remove, convert };
 }
