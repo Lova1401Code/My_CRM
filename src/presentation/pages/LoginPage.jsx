@@ -42,50 +42,59 @@ export function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
-      <div className="w-full max-w-md">
-        <div className="mb-6 text-center">
-          <h1 className="text-3xl font-bold text-slate-900">{APP.NAME}</h1>
-          <p className="mt-1 text-sm text-slate-500">Gestion commerciale</p>
-        </div>
-        <div className="rounded-lg bg-white p-6 shadow-lg ring-1 ring-slate-200 sm:p-8">
-          <h2 className="mb-6 text-xl font-semibold text-slate-800">Connexion</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Field label="Email" required htmlFor="email">
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-                placeholder="vous@exemple.com"
-              />
-            </Field>
-            <Field label="Mot de passe" required htmlFor="password">
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoComplete="current-password"
-                placeholder="••••••••"
-              />
-            </Field>
-            <Button type="submit" loading={loading} className="w-full" size="lg">
-              Se connecter
-            </Button>
-          </form>
-          <div className="mt-6 border-t border-slate-200 pt-4">
-            <p className="mb-2 text-center text-xs text-slate-500">Comptes de démonstration</p>
-            <div className="grid grid-cols-2 gap-2">
-              <Button variant="secondary" size="sm" onClick={() => fillDemo('admin')} type="button">
-                Admin
+    <div className="flex min-h-screen bg-slate-100">
+      <div className="hidden w-1/2 items-center justify-center bg-slate-50 p-12 lg:flex">
+        <img
+          src="/undraw_business-pitch_h9yw.svg"
+          alt="Illustration CRM"
+          className="max-w-full h-auto"
+        />
+      </div>
+      <div className="flex w-full items-center justify-center px-4 lg:w-1/2">
+        <div className="w-full max-w-md">
+          <div className="mb-6 text-center">
+            <h1 className="text-3xl font-bold text-slate-900">{APP.NAME}</h1>
+            <p className="mt-1 text-sm text-slate-500">Gestion commerciale</p>
+          </div>
+          <div className="rounded-lg bg-white p-6 shadow-lg ring-1 ring-slate-200 sm:p-8">
+            <h2 className="mb-6 text-xl font-semibold text-slate-800">Connexion</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <Field label="Email" required htmlFor="email">
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoComplete="email"
+                  placeholder="vous@exemple.com"
+                />
+              </Field>
+              <Field label="Mot de passe" required htmlFor="password">
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                  placeholder="••••••••"
+                />
+              </Field>
+              <Button type="submit" loading={loading} className="w-full" size="lg">
+                Se connecter
               </Button>
-              <Button variant="secondary" size="sm" onClick={() => fillDemo('commercial')} type="button">
-                Commercial
-              </Button>
+            </form>
+            <div className="mt-6 border-t border-slate-200 pt-4">
+              <p className="mb-2 text-center text-xs text-slate-500">Comptes de démonstration</p>
+              <div className="grid grid-cols-2 gap-2">
+                <Button variant="secondary" size="sm" onClick={() => fillDemo('admin')} type="button">
+                  Admin
+                </Button>
+                <Button variant="secondary" size="sm" onClick={() => fillDemo('commercial')} type="button">
+                  Commercial
+                </Button>
+              </div>
             </div>
           </div>
         </div>
