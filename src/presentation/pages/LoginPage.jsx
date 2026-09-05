@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Users, TrendingUp, Activity, Target, Handshake, BarChart3, UserRound, ShieldCheck, LogIn } from 'lucide-react';
+import { Users, Target, Handshake, BarChart3, UserRound, ShieldCheck, LogIn } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { Button } from '../components/ui/Button.jsx';
@@ -59,10 +59,10 @@ export function LoginPage() {
   return (
     <div className="flex h-screen overflow-hidden bg-white">
       {/* Brand panel — left */}
-      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-violet-700 via-purple-800 to-fuchsia-900 p-10 lg:flex">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-white blur-3xl" />
-          <div className="absolute bottom-0 -left-24 h-80 w-80 rounded-full bg-fuchsia-400 blur-3xl" />
+      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-slate-900 p-10 lg:flex">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-amber-500/30 blur-3xl" />
+          <div className="absolute bottom-0 -left-24 h-80 w-80 rounded-full bg-sky-500/20 blur-3xl" />
         </div>
 
         <div className="relative z-10">
@@ -70,7 +70,7 @@ export function LoginPage() {
             <Logo size={44} />
             <div>
               <h1 className="text-2xl font-bold text-white">{APP.NAME}</h1>
-              <p className="text-sm text-purple-200">Customer Relationship Management</p>
+              <p className="text-sm text-slate-400">Customer Relationship Management</p>
             </div>
           </div>
         </div>
@@ -81,7 +81,7 @@ export function LoginPage() {
             alt="Illustration CRM"
             className="w-full max-w-sm drop-shadow-2xl"
           />
-          <p className="mt-6 max-w-sm text-center text-lg font-medium text-purple-100">
+          <p className="mt-6 max-w-sm text-center text-lg font-medium text-slate-200">
             Accélérez votre croissance commerciale
           </p>
         </div>
@@ -89,27 +89,27 @@ export function LoginPage() {
         <div className="relative z-10 space-y-3">
           {features.map((f) => (
             <div key={f.title} className="flex items-start gap-3">
-              <div className="mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-white/15 backdrop-blur-sm">
-                <f.icon className="h-5 w-5 text-white" />
+              <div className="mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-amber-500/15 ring-1 ring-amber-500/30">
+                <f.icon className="h-5 w-5 text-amber-400" />
               </div>
               <div>
                 <p className="text-sm font-semibold text-white">{f.title}</p>
-                <p className="text-xs text-purple-200">{f.desc}</p>
+                <p className="text-xs text-slate-400">{f.desc}</p>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="relative z-10 flex items-center gap-8 border-t border-white/15 pt-6">
+        <div className="relative z-10 flex items-center gap-8 border-t border-white/10 pt-6">
           {stats.map((s) => (
             <div key={s.label}>
-              <p className="text-2xl font-bold text-white">{s.value}</p>
-              <p className="text-xs text-purple-200">{s.label}</p>
+              <p className="text-2xl font-bold text-amber-400">{s.value}</p>
+              <p className="text-xs text-slate-400">{s.label}</p>
             </div>
           ))}
         </div>
 
-        <p className="relative z-10 text-sm text-purple-200">
+        <p className="relative z-10 text-sm text-slate-500">
           © {new Date().getFullYear()} {APP.NAME}. Tous droits réservés.
         </p>
       </div>
@@ -118,7 +118,7 @@ export function LoginPage() {
       <div className="flex h-full w-full flex-col items-center justify-center overflow-y-auto bg-slate-50 p-6 lg:w-1/2">
         <div className="mb-8 flex items-center gap-3 lg:hidden">
           <Logo size={40} />
-          <h1 className="text-xl font-bold text-purple-700">{APP.NAME}</h1>
+          <h1 className="text-xl font-bold text-slate-900">{APP.NAME}</h1>
         </div>
 
         <div className="w-full max-w-md">
@@ -169,7 +169,7 @@ export function LoginPage() {
             <button
               type="button"
               onClick={() => fillDemo('admin')}
-              className="flex items-center justify-center gap-2 rounded-lg border border-purple-200 bg-purple-50 px-4 py-2.5 text-sm font-medium text-purple-700 transition-all hover:bg-purple-100 hover:border-purple-300"
+              className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-all hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700"
             >
               <ShieldCheck className="h-4 w-4" />
               Admin
@@ -177,7 +177,7 @@ export function LoginPage() {
             <button
               type="button"
               onClick={() => fillDemo('commercial')}
-              className="flex items-center justify-center gap-2 rounded-lg border border-purple-200 bg-purple-50 px-4 py-2.5 text-sm font-medium text-purple-700 transition-all hover:bg-purple-100 hover:border-purple-300"
+              className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-all hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700"
             >
               <UserRound className="h-4 w-4" />
               Commercial
