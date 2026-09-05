@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Users, TrendingUp, Activity, UserRound, ShieldCheck, LogIn } from 'lucide-react';
+import { Users, TrendingUp, Activity, Target, Handshake, BarChart3, UserRound, ShieldCheck, LogIn } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { Button } from '../components/ui/Button.jsx';
@@ -10,9 +10,16 @@ import { errorMessage } from '../../shared/utils/errors.js';
 import { APP } from '../../core/config/constants.js';
 
 const features = [
-  { icon: Users, title: 'Gestion clients', desc: 'Centralisez vos contacts et suivez vos relations' },
-  { icon: TrendingUp, title: 'Pipeline commercial', desc: 'Visualisez vos opportunités et vos deals en cours' },
-  { icon: Activity, title: 'Suivi des activités', desc: 'Gardez une trace de chaque interaction avec vos clients' },
+  { icon: Users, title: 'Contacts & comptes', desc: 'Fédérez vos clients et prospects dans une base unique' },
+  { icon: Target, title: 'Leads & opportunities', desc: 'Transformez vos prospects en clients avec un pipeline visuel' },
+  { icon: Handshake, title: 'Deals & négociations', desc: 'Suivez chaque étape de vos devis et accords commerciaux' },
+  { icon: BarChart3, title: 'Tableaux de bord', desc: 'Pilotez votre performance avec des indicateurs en temps réel' },
+];
+
+const stats = [
+  { value: '+38%', label: 'Taux de conversion' },
+  { value: '24/7', label: 'Suivi commercial' },
+  { value: '360°', label: 'Vue client' },
 ];
 
 export function LoginPage() {
@@ -52,10 +59,10 @@ export function LoginPage() {
   return (
     <div className="flex h-screen overflow-hidden bg-white">
       {/* Brand panel — left */}
-      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-indigo-600 via-indigo-700 to-indigo-900 p-10 lg:flex">
+      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-violet-700 via-purple-800 to-fuchsia-900 p-10 lg:flex">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-white blur-3xl" />
-          <div className="absolute bottom-0 -left-24 h-80 w-80 rounded-full bg-indigo-300 blur-3xl" />
+          <div className="absolute bottom-0 -left-24 h-80 w-80 rounded-full bg-fuchsia-400 blur-3xl" />
         </div>
 
         <div className="relative z-10">
@@ -63,7 +70,7 @@ export function LoginPage() {
             <Logo size={44} />
             <div>
               <h1 className="text-2xl font-bold text-white">{APP.NAME}</h1>
-              <p className="text-sm text-indigo-200">Gestion commerciale</p>
+              <p className="text-sm text-purple-200">Customer Relationship Management</p>
             </div>
           </div>
         </div>
@@ -74,8 +81,8 @@ export function LoginPage() {
             alt="Illustration CRM"
             className="w-full max-w-sm drop-shadow-2xl"
           />
-          <p className="mt-6 max-w-sm text-center text-lg font-medium text-indigo-100">
-            Pilotez votre relation client en toute simplicité
+          <p className="mt-6 max-w-sm text-center text-lg font-medium text-purple-100">
+            Accélérez votre croissance commerciale
           </p>
         </div>
 
@@ -87,28 +94,37 @@ export function LoginPage() {
               </div>
               <div>
                 <p className="text-sm font-semibold text-white">{f.title}</p>
-                <p className="text-xs text-indigo-200">{f.desc}</p>
+                <p className="text-xs text-purple-200">{f.desc}</p>
               </div>
             </div>
           ))}
         </div>
 
-        <p className="relative z-10 text-sm text-indigo-200">
+        <div className="relative z-10 flex items-center gap-8 border-t border-white/15 pt-6">
+          {stats.map((s) => (
+            <div key={s.label}>
+              <p className="text-2xl font-bold text-white">{s.value}</p>
+              <p className="text-xs text-purple-200">{s.label}</p>
+            </div>
+          ))}
+        </div>
+
+        <p className="relative z-10 text-sm text-purple-200">
           © {new Date().getFullYear()} {APP.NAME}. Tous droits réservés.
         </p>
       </div>
 
       {/* Form panel — right */}
-      <div className="flex h-full w-full flex-col items-center justify-center overflow-y-auto p-6 lg:w-1/2">
+      <div className="flex h-full w-full flex-col items-center justify-center overflow-y-auto bg-slate-50 p-6 lg:w-1/2">
         <div className="mb-8 flex items-center gap-3 lg:hidden">
           <Logo size={40} />
-          <h1 className="text-xl font-bold text-indigo-600">{APP.NAME}</h1>
+          <h1 className="text-xl font-bold text-purple-700">{APP.NAME}</h1>
         </div>
 
         <div className="w-full max-w-md">
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-slate-900">Bon retour 👋</h2>
-            <p className="mt-2 text-slate-500">Connectez-vous à votre compte pour continuer</p>
+            <h2 className="text-3xl font-bold text-slate-900">Accès à votre espace</h2>
+            <p className="mt-2 text-slate-500">Saisissez vos identifiants pour accéder au tableau de bord commercial</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -136,7 +152,7 @@ export function LoginPage() {
             </Field>
             <Button type="submit" loading={loading} className="w-full" size="lg">
               <LogIn className="h-4 w-4" />
-              Se connecter
+              Accéder au CRM
             </Button>
           </form>
 
@@ -145,7 +161,7 @@ export function LoginPage() {
               <div className="w-full border-t border-slate-200" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-white px-3 text-xs text-slate-400">comptes de démonstration</span>
+              <span className="bg-slate-50 px-3 text-xs text-slate-400">comptes de démonstration</span>
             </div>
           </div>
 
@@ -153,7 +169,7 @@ export function LoginPage() {
             <button
               type="button"
               onClick={() => fillDemo('admin')}
-              className="flex items-center justify-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-sm font-medium text-indigo-700 transition-all hover:bg-indigo-100 hover:border-indigo-300"
+              className="flex items-center justify-center gap-2 rounded-lg border border-purple-200 bg-purple-50 px-4 py-2.5 text-sm font-medium text-purple-700 transition-all hover:bg-purple-100 hover:border-purple-300"
             >
               <ShieldCheck className="h-4 w-4" />
               Admin
@@ -161,7 +177,7 @@ export function LoginPage() {
             <button
               type="button"
               onClick={() => fillDemo('commercial')}
-              className="flex items-center justify-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-sm font-medium text-indigo-700 transition-all hover:bg-indigo-100 hover:border-indigo-300"
+              className="flex items-center justify-center gap-2 rounded-lg border border-purple-200 bg-purple-50 px-4 py-2.5 text-sm font-medium text-purple-700 transition-all hover:bg-purple-100 hover:border-purple-300"
             >
               <UserRound className="h-4 w-4" />
               Commercial
