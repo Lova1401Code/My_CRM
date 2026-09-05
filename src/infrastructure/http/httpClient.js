@@ -7,6 +7,13 @@ import {
   ConflictError,
 } from '../../core/domain/errors/index.js';
 import { APP } from '../../core/config/constants.js';
+import { fetchWithTimeout } from './fetchWithTimeout.js';
+
+let serverStatusCallbacks = null;
+
+export function configureServerStatusCallbacks(callbacks) {
+  serverStatusCallbacks = callbacks;
+}
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api';
 
@@ -46,12 +53,21 @@ async function request(method, path, { params, body } = {}) {
   const headers = { 'Content-Type': 'application/json' };
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
+  if (serverStatusCallbacks) serverStatusCallbacks.onRequestStart();
+
   try {
-    const response = await fetch(url.toString(), {
-      method,
-      headers,
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-    });
+    const response = await fetchWithTimeout(
+      url.toString(),
+      {
+        method,
+        headers,
+        body: body !== undefined ? JSON.stringify(body) : undefined,
+      },
+      {
+        onWarn: () => serverStatusCallbacks?.onWarn(),
+        onRetry: (attempt, max) => serverStatusCallbacks?.onRetry(attempt, max),
+      },
+    );
 
     if (response.status === 401) {
       localStorage.removeItem(APP.TOKEN_KEY);
@@ -68,7 +84,13 @@ async function request(method, path, { params, body } = {}) {
     return Result.ok(parsed);
   } catch (err) {
     if (err instanceof DomainError) return Result.fail(err);
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      if (serverStatusCallbacks) serverStatusCallbacks.onError();
+      return Result.fail(new DomainError('Le serveur ne répond pas', 'TIMEOUT_ERROR', {}));
+    }
     return Result.fail(new DomainError(err.message || 'Erreur réseau', 'NETWORK_ERROR', {}));
+  } finally {
+    if (serverStatusCallbacks) serverStatusCallbacks.onRequestEnd();
   }
 }
 
