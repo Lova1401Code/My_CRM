@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Input, Field, Select } from '../components/ui/Input.jsx';
+import { TagInput } from '../components/ui/TagInput.jsx';
 import { Spinner } from '../components/ui/Feedback.jsx';
 import { errorMessage, fieldErrors } from '../../shared/utils/errors.js';
 import { LEAD_SOURCES } from '../../core/config/constants.js';
@@ -20,6 +21,7 @@ const EMPTY = {
   phone: '',
   source: '',
   status: LeadStatus.NEW,
+  tags: [],
   ownerId: '',
 };
 
@@ -90,11 +92,11 @@ export function LeadFormPage() {
         <Link to="/leads" className="rounded-md p-2 text-slate-500 hover:bg-slate-200">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-2xl font-bold text-slate-900">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
           {isEdit ? 'Modifier le prospect' : 'Nouveau prospect'}
         </h1>
       </div>
-      <form onSubmit={handleSubmit} className="space-y-5 rounded-lg bg-white p-6 ring-1 ring-slate-200">
+      <form onSubmit={handleSubmit} className="space-y-5 rounded-lg bg-white p-6 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Prénom" required error={errors.firstname}>
             <Input value={form.firstname} onChange={set('firstname')} error={errors.firstname} required />
@@ -131,6 +133,13 @@ export function LeadFormPage() {
             </Select>
           </Field>
         </div>
+        <Field label="Étiquettes" hint="Appuyez sur Entrée pour ajouter">
+          <TagInput
+            value={form.tags || []}
+            onChange={(tags) => setForm((f) => ({ ...f, tags }))}
+            suggestions={['Hot', 'Stratégique', 'Froid', 'À qualifier', 'Priority']}
+          />
+        </Field>
         {isAdmin && (
           <Field label="Propriétaire (commercial)" required error={errors.ownerId}>
             <Select value={form.ownerId} onChange={set('ownerId')} error={errors.ownerId} required>

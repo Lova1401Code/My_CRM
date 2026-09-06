@@ -109,22 +109,22 @@ export function LoginPage() {
           ))}
         </div>
 
-        <p className="relative z-10 text-sm text-slate-500">
+        <p className="relative z-10 text-sm text-slate-500 dark:text-slate-400">
           © {new Date().getFullYear()} {APP.NAME}. Tous droits réservés.
         </p>
       </div>
 
       {/* Form panel — right */}
-      <div className="flex h-full w-full flex-col items-center justify-center overflow-y-auto bg-slate-50 p-6 lg:w-1/2">
+      <div className="flex h-full w-full flex-col items-center justify-center overflow-y-auto bg-slate-50 p-6 dark:bg-slate-950 lg:w-1/2">
         <div className="mb-8 flex items-center gap-3 lg:hidden">
           <Logo size={40} />
-          <h1 className="text-xl font-bold text-slate-900">{APP.NAME}</h1>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">{APP.NAME}</h1>
         </div>
 
         <div className="w-full max-w-md">
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-slate-900">Accès à votre espace</h2>
-            <p className="mt-2 text-slate-500">Saisissez vos identifiants pour accéder au tableau de bord commercial</p>
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Accès à votre espace</h2>
+            <p className="mt-2 text-slate-500 dark:text-slate-400">Saisissez vos identifiants pour accéder au tableau de bord commercial</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -158,10 +158,10 @@ export function LoginPage() {
 
           <div className="relative py-4">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200" />
+              <div className="w-full border-t border-slate-200 dark:border-slate-700" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-slate-50 px-3 text-xs text-slate-400">comptes de démonstration</span>
+              <span className="bg-slate-50 px-3 text-xs text-slate-400 dark:bg-slate-950 dark:text-slate-500">comptes de démonstration</span>
             </div>
           </div>
 
@@ -169,7 +169,7 @@ export function LoginPage() {
             <button
               type="button"
               onClick={() => fillDemo('admin')}
-              className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-all hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700"
+              className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-all hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
             >
               <ShieldCheck className="h-4 w-4" />
               Admin
@@ -177,7 +177,7 @@ export function LoginPage() {
             <button
               type="button"
               onClick={() => fillDemo('commercial')}
-              className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-all hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700"
+              className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-all hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
             >
               <UserRound className="h-4 w-4" />
               Commercial

@@ -7,6 +7,7 @@ import {
   DeleteLeadUseCase,
   ConvertLeadToCustomerUseCase,
 } from '../../application/leads/LeadUseCases.js';
+import { TOKENS, useService } from '../../infrastructure/container/ServiceContainer.js';
 
 export function useLeads() {
   const [loading, setLoading] = useState(false);
@@ -71,5 +72,10 @@ export function useLeads() {
     }
   }, []);
 
-  return { loading, list, get, create, update, remove, convert };
+  const exportCsv = useCallback(async () => {
+    const repo = useService(TOKENS.LeadRepository);
+    return repo.export();
+  }, []);
+
+  return { loading, list, get, create, update, remove, convert, exportCsv };
 }

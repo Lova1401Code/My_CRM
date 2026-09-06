@@ -91,8 +91,8 @@ export function UsersListPage() {
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Utilisateurs</h1>
-          <p className="mt-1 text-sm text-slate-500">{data.total} utilisateur(s) au total</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Utilisateurs</h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{data.total} utilisateur(s) au total</p>
         </div>
         <Button onClick={() => navigate('/users/new')}>
           <Plus className="h-4 w-4" /> Nouvel utilisateur

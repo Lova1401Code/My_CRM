@@ -93,7 +93,7 @@ export function CustomerDetailPage() {
               <h1 className="text-xl font-bold text-slate-900">
                 {customer.firstname} {customer.lastname}
               </h1>
-              <p className="mt-0.5 flex items-center gap-1.5 text-sm text-slate-500">
+              <p className="mt-0.5 flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
                 <Building2 className="h-4 w-4" />
                 {customer.company || '—'}
               </p>

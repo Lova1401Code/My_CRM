@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Pencil, Trash2, Plus, Handshake, LayoutGrid, List } from 'lucide-react';
+import { Pencil, Trash2, Plus, Handshake, LayoutGrid, List, Download } from 'lucide-react';
 import { useDeals } from '../../adapters/hooks/useDeals.js';
 import { useCustomers } from '../../adapters/hooks/useCustomers.js';
 import { useUsers } from '../../adapters/hooks/useUsers.js';
@@ -15,6 +15,7 @@ import { StatCard } from '../components/ui/StatCard.jsx';
 import { Spinner, EmptyState } from '../components/ui/Feedback.jsx';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog.jsx';
 import { DealBoard } from '../components/entities/DealBoard.jsx';
+import { downloadCsv } from '../../shared/utils/csv.js';
 import { errorMessage } from '../../shared/utils/errors.js';
 import { formatDate, formatCurrency } from '../../shared/utils/formatters.js';
 import { PAGINATION } from '../../core/config/constants.js';
@@ -27,7 +28,7 @@ import {
 
 export function DealsListPage() {
   const { user, isAdmin } = useAuth();
-  const { list, remove, update, loading } = useDeals();
+  const { list, remove, update, exportCsv, loading } = useDeals();
   const { list: listCustomers } = useCustomers();
   const { list: listUsers } = useUsers();
   const toast = useToast();
@@ -114,6 +115,16 @@ export function DealsListPage() {
     setPage(1);
   };
 
+  const handleExport = async () => {
+    try {
+      const csv = await exportCsv();
+      downloadCsv(csv, `affaires-${Date.now()}.csv`);
+      toast.success('Export CSV téléchargé');
+    } catch {
+      toast.error('Erreur lors de l\'export');
+    }
+  };
+
   const handleDelete = async () => {
     setBusy(true);
     const result = await remove({ actor: user, id: confirmId });
@@ -196,8 +207,8 @@ export function DealsListPage() {
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Pipeline de ventes</h1>
-          <p className="mt-1 text-sm text-slate-500">{data.total} affaire(s) au total</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Pipeline de ventes</h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{data.total} affaire(s) au total</p>
         </div>
         <Button onClick={() => navigate('/deals/new')}>
           <Plus className="h-4 w-4" /> Nouvelle affaire
@@ -212,7 +223,7 @@ export function DealsListPage() {
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         {boardMode ? (
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Glissez-déposez une carte pour changer l'étape d'une affaire.
           </p>
         ) : (
@@ -233,7 +244,11 @@ export function DealsListPage() {
             </select>
           </>
         )}
-        <div className="flex shrink-0 rounded-md bg-slate-100 p-1">
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" onClick={handleExport}>
+            <Download className="h-4 w-4" /> Export
+          </Button>
+          <div className="flex shrink-0 rounded-md bg-slate-100 p-1 dark:bg-slate-800">
           <button
             type="button"
             onClick={() => setView('list')}
@@ -254,6 +269,7 @@ export function DealsListPage() {
             <LayoutGrid className="h-4 w-4" />
             Kanban
           </button>
+          </div>
         </div>
       </div>
 

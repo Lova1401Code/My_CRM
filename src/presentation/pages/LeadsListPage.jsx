@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Pencil, Trash2, Plus, UserPlus, UserCheck } from 'lucide-react';
+import { Pencil, Trash2, Plus, UserPlus, UserCheck, Download, ArrowUpDown } from 'lucide-react';
 import { useLeads } from '../../adapters/hooks/useLeads.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
@@ -11,6 +11,10 @@ import { Badge } from '../components/ui/Badge.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Spinner, EmptyState } from '../components/ui/Feedback.jsx';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog.jsx';
+import { TagBadge } from '../components/ui/TagInput.jsx';
+import { ScoreBadge } from '../components/ui/ScoreBadge.jsx';
+import { downloadCsv } from '../../shared/utils/csv.js';
+import { LEAD_SOURCES } from '../../core/config/constants.js';
 import { errorMessage } from '../../shared/utils/errors.js';
 import { formatDate } from '../../shared/utils/formatters.js';
 import { PAGINATION } from '../../core/config/constants.js';
@@ -18,7 +22,7 @@ import { LeadStatus, LEAD_STATUS_LABELS, LEAD_STATUS_STYLES } from '../../core/d
 
 export function LeadsListPage() {
   const { user } = useAuth();
-  const { list, remove, convert, loading } = useLeads();
+  const { list, remove, convert, exportCsv, loading } = useLeads();
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -27,16 +31,24 @@ export function LeadsListPage() {
   const [limit, setLimit] = useState(PAGINATION.DEFAULT_PAGE_SIZE);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [sourceFilter, setSourceFilter] = useState('');
+  const [tagFilter, setTagFilter] = useState('');
+  const [sortBy, setSortBy] = useState('');
+  const [sortOrder, setSortOrder] = useState('desc');
   const [confirmId, setConfirmId] = useState(null);
   const [convertId, setConvertId] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const fetch = useCallback(async () => {
-    const filters = statusFilter ? { status: statusFilter } : {};
-    const result = await list({ actor: user, page, limit, search, filters });
+    const filters = {};
+    if (statusFilter) filters.status = statusFilter;
+    if (sourceFilter) filters.source = sourceFilter;
+    if (tagFilter) filters.tag = tagFilter;
+    const result = await list({ actor: user, page, limit, search, filters, sortBy, sortOrder });
     if (result.isSuccess) setData(result.value);
     else toast.error(errorMessage(result));
-  }, [user, page, limit, search, statusFilter, list, toast]);
+  }, [user, page, limit, search, statusFilter, sourceFilter, tagFilter, sortBy, sortOrder, list, toast]);
 
   useEffect(() => {
     fetch();
@@ -50,6 +62,28 @@ export function LeadsListPage() {
   const handleLimit = (value) => {
     setLimit(value);
     setPage(1);
+  };
+
+  const handleSort = (field) => {
+    if (sortBy === field) {
+      setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+  };
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const csv = await exportCsv();
+      downloadCsv(csv, `prospects-${Date.now()}.csv`);
+      toast.success('Export CSV téléchargé');
+    } catch {
+      toast.error('Erreur lors de l\'export');
+    } finally {
+      setExporting(false);
+    }
   };
 
   const handleDelete = async () => {
@@ -87,6 +121,16 @@ export function LeadsListPage() {
     { key: 'company', header: 'Société', render: (l) => l.company || '-' },
     { key: 'email', header: 'Email', render: (l) => l.email || '-' },
     { key: 'source', header: 'Source', render: (l) => l.source || '-' },
+    { key: 'score', header: (
+      <button type="button" onClick={() => handleSort('score')} className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-slate-200">
+        Score <ArrowUpDown className="h-3 w-3" />
+      </button>
+    ), render: (l) => <ScoreBadge score={l.score || 0} /> },
+    { key: 'tags', header: 'Tags', render: (l) => (
+      <div className="flex flex-wrap gap-1">
+        {(l.tags || []).map((t) => <TagBadge key={t} tag={t} />)}
+      </div>
+    ) },
     {
       key: 'status',
       header: 'Statut',
@@ -103,8 +147,8 @@ export function LeadsListPage() {
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Prospects</h1>
-          <p className="mt-1 text-sm text-slate-500">{data.total} prospect(s) au total</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Prospects</h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{data.total} prospect(s) au total</p>
         </div>
         <Button onClick={() => navigate('/leads/new')}>
           <Plus className="h-4 w-4" /> Nouveau prospect
@@ -112,23 +156,45 @@ export function LeadsListPage() {
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <SearchBar value={search} onChange={handleSearch} placeholder="Rechercher un prospect..." />
-        <select
-          value={statusFilter}
-          onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-          className="rounded-md border-0 bg-white px-3 py-2 text-sm ring-1 ring-slate-300 focus:ring-2 focus:ring-indigo-600"
-        >
-          <option value="">Tous les statuts</option>
-          {Object.values(LeadStatus).map((s) => (
-            <option key={s} value={s}>{LEAD_STATUS_LABELS[s]}</option>
-          ))}
-        </select>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <SearchBar value={search} onChange={handleSearch} placeholder="Rechercher un prospect..." />
+          <select
+            value={statusFilter}
+            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+            className="rounded-md border-0 bg-white px-3 py-2 text-sm ring-1 ring-slate-300 focus:ring-2 focus:ring-indigo-600 dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-600"
+          >
+            <option value="">Tous les statuts</option>
+            {Object.values(LeadStatus).map((s) => (
+              <option key={s} value={s}>{LEAD_STATUS_LABELS[s]}</option>
+            ))}
+          </select>
+          <select
+            value={sourceFilter}
+            onChange={(e) => { setSourceFilter(e.target.value); setPage(1); }}
+            className="rounded-md border-0 bg-white px-3 py-2 text-sm ring-1 ring-slate-300 focus:ring-2 focus:ring-indigo-600 dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-600"
+          >
+            <option value="">Toutes les sources</option>
+            {LEAD_SOURCES.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+          <input
+            type="text"
+            value={tagFilter}
+            onChange={(e) => { setTagFilter(e.target.value); setPage(1); }}
+            placeholder="Filtrer par tag..."
+            className="rounded-md border-0 bg-white px-3 py-2 text-sm ring-1 ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-600 dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-600"
+          />
+        </div>
+        <Button variant="secondary" onClick={handleExport} loading={exporting}>
+          <Download className="h-4 w-4" /> Export CSV
+        </Button>
       </div>
 
       {loading && data.items.length === 0 ? (
         <Spinner className="py-20" />
       ) : data.items.length === 0 ? (
-        <div className="rounded-lg bg-white p-8 ring-1 ring-slate-200">
+        <div className="rounded-lg bg-white p-8 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
           <EmptyState
             icon={<UserCheck className="h-10 w-10" />}
             title="Aucun prospect"
@@ -137,7 +203,7 @@ export function LeadsListPage() {
           />
         </div>
       ) : (
-        <div className="rounded-lg bg-white p-3 ring-1 ring-slate-200">
+        <div className="rounded-lg bg-white p-3 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
           <Table
             columns={columns}
             data={data.items}

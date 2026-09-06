@@ -105,7 +105,7 @@ export function DealFormPage() {
         <Link to="/deals" className="rounded-md p-2 text-slate-500 hover:bg-slate-200">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-2xl font-bold text-slate-900">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
           {isEdit ? "Modifier l'affaire" : 'Nouvelle affaire'}
         </h1>
       </div>

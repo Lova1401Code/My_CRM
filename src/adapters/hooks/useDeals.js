@@ -6,6 +6,7 @@ import {
   UpdateDealUseCase,
   DeleteDealUseCase,
 } from '../../application/deals/DealUseCases.js';
+import { TOKENS, useService } from '../../infrastructure/container/ServiceContainer.js';
 
 export function useDeals() {
   const [loading, setLoading] = useState(false);
@@ -25,5 +26,10 @@ export function useDeals() {
   const update = useCallback((params) => run(new UpdateDealUseCase(), params), [run]);
   const remove = useCallback((params) => run(new DeleteDealUseCase(), params), [run]);
 
-  return { loading, list, get, create, update, remove };
+  const exportCsv = useCallback(async () => {
+    const repo = useService(TOKENS.DealRepository);
+    return repo.export();
+  }, []);
+
+  return { loading, list, get, create, update, remove, exportCsv };
 }

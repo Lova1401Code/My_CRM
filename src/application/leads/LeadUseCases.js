@@ -13,13 +13,13 @@ import { RelatedEntityType } from '../../core/domain/enums/RelatedEntityType.js'
 import { logActivity } from '../activities/ActivityUseCases.js';
 
 export class ListLeadsUseCase extends UseCase {
-  async execute({ actor, page, limit, search, filters } = {}) {
+  async execute({ actor, page, limit, search, filters, sortBy, sortOrder, dateFrom, dateTo } = {}) {
     const repo = useService(TOKENS.LeadRepository);
     const effectiveFilters = { ...filters };
     if (actor && actor.role === Role.COMMERCIAL) {
       effectiveFilters.ownerId = actor.id;
     }
-    return repo.findMany({ page, limit, search, filters: effectiveFilters });
+    return repo.findMany({ page, limit, search, filters: effectiveFilters, sortBy, sortOrder, dateFrom, dateTo });
   }
 }
 

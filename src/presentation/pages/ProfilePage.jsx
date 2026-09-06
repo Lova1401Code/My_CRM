@@ -65,8 +65,8 @@ export function ProfilePage() {
   return (
     <div className="mx-auto max-w-2xl space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Mon profil</h1>
-        <p className="mt-1 text-sm text-slate-500">Gérez vos informations personnelles</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Mon profil</h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Gérez vos informations personnelles</p>
       </div>
 
       <div className="rounded-lg bg-white p-6 ring-1 ring-slate-200">

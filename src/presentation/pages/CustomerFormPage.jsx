@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Input, Field, Select } from '../components/ui/Input.jsx';
+import { TagInput } from '../components/ui/TagInput.jsx';
 import { Spinner } from '../components/ui/Feedback.jsx';
 import { errorMessage, fieldErrors } from '../../shared/utils/errors.js';
 import { COUNTRIES } from '../../core/config/constants.js';
@@ -20,6 +21,7 @@ const EMPTY = {
   address: '',
   city: '',
   country: 'France',
+  tags: [],
   ownerId: '',
 };
 
@@ -90,11 +92,11 @@ export function CustomerFormPage() {
         <Link to="/customers" className="rounded-md p-2 text-slate-500 hover:bg-slate-200">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-2xl font-bold text-slate-900">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
           {isEdit ? 'Modifier le client' : 'Nouveau client'}
         </h1>
       </div>
-      <form onSubmit={handleSubmit} className="space-y-5 rounded-lg bg-white p-6 ring-1 ring-slate-200">
+      <form onSubmit={handleSubmit} className="space-y-5 rounded-lg bg-white p-6 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Prénom" required error={errors.firstname}>
             <Input value={form.firstname} onChange={set('firstname')} error={errors.firstname} required />
@@ -129,6 +131,13 @@ export function CustomerFormPage() {
             </Select>
           </Field>
         </div>
+        <Field label="Étiquettes" hint="Appuyez sur Entrée pour ajouter">
+          <TagInput
+            value={form.tags || []}
+            onChange={(tags) => setForm((f) => ({ ...f, tags }))}
+            suggestions={['VIP', 'À relancer', 'Stratégique', 'Hot', 'Froid']}
+          />
+        </Field>
         {isAdmin && (
           <Field label="Propriétaire (commercial)" required error={errors.ownerId}>
             <Select value={form.ownerId} onChange={set('ownerId')} error={errors.ownerId} required>
@@ -139,7 +148,7 @@ export function CustomerFormPage() {
             </Select>
           </Field>
         )}
-        <div className="flex justify-end gap-2 border-t border-slate-200 pt-4">
+        <div className="flex justify-end gap-2 border-t border-slate-200 pt-4 dark:border-slate-700">
           <Link to="/customers">
             <Button type="button" variant="secondary">Annuler</Button>
           </Link>

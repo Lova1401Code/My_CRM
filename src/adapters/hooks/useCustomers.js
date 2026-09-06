@@ -60,5 +60,10 @@ export function useCustomers() {
     }
   }, []);
 
-  return { loading, list, get, create, update, remove };
+  const exportCsv = useCallback(async () => {
+    const repo = useService(TOKENS.CustomerRepository);
+    return repo.export();
+  }, []);
+
+  return { loading, list, get, create, update, remove, exportCsv };
 }

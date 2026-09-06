@@ -25,7 +25,7 @@ export function SearchBar({ value, onChange, placeholder = 'Rechercher...', debo
         value={local}
         onChange={handleChange}
         placeholder={placeholder}
-        className="block w-full rounded-md border-0 bg-white py-2 pl-10 pr-3 text-sm text-slate-900 ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
+        className="block w-full rounded-md border-0 bg-white py-2 pl-10 pr-3 text-sm text-slate-900 ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-600 dark:placeholder:text-slate-500"
       />
     </div>
   );

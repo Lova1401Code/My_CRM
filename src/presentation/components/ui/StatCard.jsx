@@ -24,11 +24,11 @@ const COLORS = {
 export function StatCard({ type, label, value }) {
   const Icon = ICONS[type] || Users;
   return (
-    <div className="rounded-lg bg-white p-5 ring-1 ring-slate-200 shadow-sm">
+    <div className="rounded-lg bg-white p-5 ring-1 ring-slate-200 shadow-sm dark:bg-slate-800 dark:ring-slate-700">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-slate-500">{label}</p>
-          <p className="mt-1 text-3xl font-semibold text-slate-900">{value}</p>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{label}</p>
+          <p className="mt-1 text-3xl font-semibold text-slate-900 dark:text-slate-100">{value}</p>
         </div>
         <div className={`rounded-full p-3 ${COLORS[type]}`}>
           <Icon className="h-6 w-6" />

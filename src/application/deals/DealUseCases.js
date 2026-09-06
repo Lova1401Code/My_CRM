@@ -25,13 +25,13 @@ async function assertCustomerAccess(actor, customerId) {
 }
 
 export class ListDealsUseCase extends UseCase {
-  async execute({ actor, page, limit, search, filters } = {}) {
+  async execute({ actor, page, limit, search, filters, sortBy, sortOrder, dateFrom, dateTo } = {}) {
     const repo = useService(TOKENS.DealRepository);
     const effectiveFilters = { ...filters };
     if (actor && actor.role === Role.COMMERCIAL) {
       effectiveFilters.ownerId = actor.id;
     }
-    return repo.findMany({ page, limit, search, filters: effectiveFilters });
+    return repo.findMany({ page, limit, search, filters: effectiveFilters, sortBy, sortOrder, dateFrom, dateTo });
   }
 }
 

@@ -50,8 +50,8 @@ export function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Tableau de bord</h1>
-        <p className="mt-1 text-sm text-slate-500">Vue d'ensemble de votre activité commerciale</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Tableau de bord</h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Vue d'ensemble de votre activité commerciale</p>
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard type="customers" label="Clients" value={stats?.customersCount ?? 0} />
@@ -74,8 +74,8 @@ export function DashboardPage() {
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold text-slate-900">Pipeline de ventes</h2>
-        <p className="mt-1 text-sm text-slate-500">Revenus et opportunités commerciales</p>
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Pipeline de ventes</h2>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Revenus et opportunités commerciales</p>
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard type="revenue" label="CA gagné" value={formatCurrency(pipeline?.wonRevenue ?? 0)} />

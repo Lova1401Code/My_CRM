@@ -9,14 +9,13 @@ import { TOKENS, useService } from '../../infrastructure/container/ServiceContai
 import { Role } from '../../core/domain/enums/Role.js';
 
 export class ListCustomersUseCase extends UseCase {
-  async execute({ actor, page, limit, search, filters } = {}) {
+  async execute({ actor, page, limit, search, filters, sortBy, sortOrder, dateFrom, dateTo } = {}) {
     const repo = useService(TOKENS.CustomerRepository);
-    // Commercial: restrict to own customers.
     const effectiveFilters = { ...filters };
     if (actor && actor.role === Role.COMMERCIAL) {
       effectiveFilters.ownerId = actor.id;
     }
-    return repo.findMany({ page, limit, search, filters: effectiveFilters });
+    return repo.findMany({ page, limit, search, filters: effectiveFilters, sortBy, sortOrder, dateFrom, dateTo });
   }
 }
 
